@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Basics">
+<meta name="theme-color" content="#1e6fd9">
+<title>Basics</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:#f3f6fb;color:#1b2430;overflow-x:hidden;-webkit-user-select:none;user-select:none;-webkit-text-size-adjust:100%}
+.screen{display:none;max-width:520px;margin:0 auto;padding:16px 16px calc(16px + env(safe-area-inset-bottom));min-height:100%}
+.screen.active{display:block}
+h1{font-size:2.2rem;margin:8px 0 16px;text-align:center;color:#1e6fd9}
+h2{font-size:1.6rem;margin:8px 0 12px;text-align:center}
+label{display:block;font-size:1.15rem;font-weight:600;margin:14px 0 6px}
+input[type=text],select{width:100%;font-size:1.3rem;padding:12px;border:2px solid #c9d3e0;border-radius:12px;background:#fff;-webkit-user-select:text;user-select:text}
+.btn{display:block;width:100%;font-size:1.35rem;font-weight:700;padding:16px;margin:12px 0;border:0;border-radius:14px;background:#1e6fd9;color:#fff;cursor:pointer}
+.btn.secondary{background:#e3e9f2;color:#1b2430}
+.btn:active{opacity:.8}
+.row{display:flex;gap:10px}
+.row .btn{flex:1}
+.topbar{display:flex;justify-content:space-between;align-items:center;font-size:1.2rem;font-weight:700;margin-bottom:4px}
+.topbar .quit{background:#e3e9f2;border:0;border-radius:10px;padding:8px 12px;font-size:1rem;font-weight:600;color:#1b2430}
+.bar{height:10px;background:#dde5f0;border-radius:6px;overflow:hidden;margin:4px 0 10px}
+.bar div{height:100%;width:0;background:#2fb36d;transition:width .2s}
+.question{font-size:3.4rem;font-weight:800;text-align:center;margin:12px 0 6px;white-space:nowrap}
+.answer{font-size:3rem;font-weight:800;text-align:center;min-height:4.4rem;line-height:4.4rem;border:3px solid #c9d3e0;border-radius:16px;background:#fff;margin:0 auto 8px;max-width:260px}
+.feedback{text-align:center;font-size:1.5rem;font-weight:800;min-height:2.2rem;margin-bottom:8px}
+.feedback.good{color:#1f9d55}.feedback.bad{color:#d64545}.feedback.show{color:#b26a00}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.key{font-size:2rem;font-weight:800;padding:0;height:68px;border:0;border-radius:16px;background:#fff;color:#1b2430;box-shadow:0 2px 0 #c9d3e0;touch-action:manipulation;cursor:pointer}
+.key:active,.key.pressed{background:#d8e6fb}
+.key.go{background:#2fb36d;color:#fff;box-shadow:0 2px 0 #1f8a52}
+.key.back{background:#ffe3e3;color:#a12f2f;box-shadow:0 2px 0 #e9b4b4}
+.stats{background:#fff;border-radius:14px;padding:12px 16px;font-size:1.15rem}
+.stats div{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eef2f7}
+.stats div:last-child{border-bottom:0}
+.missed{background:#fff;border-radius:14px;padding:10px 16px;margin-top:12px;font-size:1.15rem}
+.missed span{display:inline-block;margin:4px 10px 4px 0;padding:4px 8px;background:#fff1e0;border-radius:8px}
+.hist{background:#fff;border-radius:14px;padding:12px 14px;margin:10px 0;font-size:1rem;line-height:1.45}
+.hist b{font-size:1.1rem}
+.small{font-size:.95rem;color:#5b6778;text-align:center}
+</style>
+</head>
+<body>
+
+<div id="home" class="screen active">
+  <h1>Basics</h1>
+  <label for="name">Name</label>
+  <input type="text" id="name" autocomplete="off" autocapitalize="words" value="Cole">
+  <label for="level">Level</label>
+  <select id="level"></select>
+  <label for="count">Number of questions</label>
+  <select id="count">
+    <option value="10">10</option>
+    <option value="25">25</option>
+    <option value="50" selected>50</option>
+    <option value="100">100</option>
+  </select>
+  <button class="btn" id="startBtn">Start</button>
+  <button class="btn secondary" id="historyBtn">History</button>
+  <p class="small">Works offline once loaded. Results are saved on this device.</p>
+</div>
+
+<div id="quiz" class="screen">
+  <div class="topbar"><span id="progress">1/50</span><span id="timer">0:00</span><button class="quit" id="quitBtn">Quit</button></div>
+  <div class="bar"><div id="barFill"></div></div>
+  <div class="question" id="qText"></div>
+  <div class="answer" id="aText"></div>
+  <div class="feedback" id="fb"></div>
+  <div class="keypad" id="keypad">
+    <button class="key" data-k="1">1</button><button class="key" data-k="2">2</button><button class="key" data-k="3">3</button>
+    <button class="key" data-k="4">4</button><button class="key" data-k="5">5</button><button class="key" data-k="6">6</button>
+    <button class="key" data-k="7">7</button><button class="key" data-k="8">8</button><button class="key" data-k="9">9</button>
+    <button class="key back" data-k="back" aria-label="Backspace">&#9003;</button><button class="key" data-k="0">0</button><button class="key go" data-k="go">Go</button>
+  </div>
+</div>
+
+<div id="results" class="screen">
+  <h2>Results</h2>
+  <div class="stats" id="statsBox"></div>
+  <div class="missed" id="missedBox"></div>
+  <div class="row"><button class="btn" id="againBtn">Practice again</button><button class="btn secondary" id="homeBtn">Home</button></div>
+</div>
+
+<div id="history" class="screen">
+  <h2>History</h2>
+  <div class="row"><button class="btn" id="csvBtn">Export CSV</button><button class="btn secondary" id="histHomeBtn">Home</button></div>
+  <div id="histList"></div>
+</div>
+
+<script src="basics.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  });
+}
+</script>
+</body>
+</html>
